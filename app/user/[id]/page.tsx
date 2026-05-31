@@ -6,10 +6,12 @@ import { dbRT } from "@/lib/firebase";
 import { Trophy, Shield, Sparkles, AlertTriangle } from "lucide-react";
 import Lanyard from "@/components/Lanyard";
 import { useParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function UserProfilePage() {
   const params = useParams();
   const userId = params.id as string;
+  const { user } = useAuth();
 
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +30,7 @@ export default function UserProfilePage() {
     return <div className="min-h-screen flex items-center justify-center animate-pulse text-primary-cyan text-xl">Chargement du profil...</div>;
   }
 
-  if (!userData) {
+  if (!userData && userId !== user?.uid) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center p-8">
         <AlertTriangle size={64} className="text-primary-pink mb-6" />
@@ -38,10 +40,14 @@ export default function UserProfilePage() {
     );
   }
 
-  const level = userData.level || 1;
-  const xp = userData.xp || 0;
-  const title = userData.activeTitle || "Débutant";
-  const activeTexture = userData.activeBack || null;
+  const level = userData?.level || 1;
+  const xp = userData?.xp || 0;
+  const title = userData?.activeTitle || "Débutant";
+  const activeTexture = userData?.activeBack || null;
+  
+  // If it's the current user, fallback to Google Display Name if no pseudo
+  const isCurrentUser = userId === user?.uid;
+  const displayName = userData?.pseudo || (isCurrentUser ? user?.displayName : null) || "Anonyme";
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden">
@@ -58,7 +64,7 @@ export default function UserProfilePage() {
 
         {/* Info */}
         <h1 className="text-5xl font-black text-white mb-3 drop-shadow-md">
-          {userData.pseudo || "Anonyme"}
+          {displayName}
         </h1>
         
         <div className="flex gap-4 mb-12">
