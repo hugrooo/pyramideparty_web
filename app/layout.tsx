@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
@@ -9,10 +9,17 @@ const nunito = Nunito({
   weight: ["400", "600", "800", "900"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#050814",
+};
+
 export const metadata: Metadata = {
   title: "Pyramide Party - Le jeu de cartes du chaos",
   description: "Jouez à Pyramide Party en local ou en ligne avec vos amis ! Le jeu de bluff, de gages et de chaos.",
-  themeColor: "#050814",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
