@@ -12,7 +12,15 @@ import './Lanyard.css';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true, cardTexture = null }) {
+interface LanyardProps {
+  position?: [number, number, number];
+  gravity?: [number, number, number];
+  fov?: number;
+  transparent?: boolean;
+  cardTexture?: string | null;
+}
+
+export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true, cardTexture = null }: LanyardProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
