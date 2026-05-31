@@ -85,26 +85,26 @@ interface BandProps {
 }
 
 function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = null }: BandProps) {
-  const band = useRef();
-  const fixed = useRef();
-  const j1 = useRef();
-  const j2 = useRef();
-  const j3 = useRef();
-  const card = useRef();
+  const band = useRef<any>(null);
+  const fixed = useRef<any>(null);
+  const j1 = useRef<any>(null);
+  const j2 = useRef<any>(null);
+  const j3 = useRef<any>(null);
+  const card = useRef<any>(null);
   
   const vec = new THREE.Vector3();
   const ang = new THREE.Vector3();
   const rot = new THREE.Vector3();
   const dir = new THREE.Vector3();
   
-  const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
+  const segmentProps = { type: 'dynamic' as const, canSleep: true, colliders: false as any, angularDamping: 4, linearDamping: 4 };
   
   // Use public folder paths in Next.js
-  const { nodes, materials } = useGLTF('/card.glb');
+  const { nodes, materials } = useGLTF('/card.glb') as any;
   const texture = useTexture('/lanyard.png');
   
   // Custom texture loader
-  const [customMap, setCustomMap] = useState(null);
+  const [customMap, setCustomMap] = useState<THREE.Texture | null>(null);
   useEffect(() => {
     if (cardTexture) {
       new THREE.TextureLoader().load(cardTexture, (t) => {
@@ -121,7 +121,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = nul
     () =>
       new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()])
   );
-  const [dragged, drag] = useState(false);
+  const [dragged, drag] = useState<any>(false);
   const [hovered, hover] = useState(false);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
@@ -191,17 +191,17 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = nul
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => {
-              e.target.releasePointerCapture(e.pointerId);
+              (e.target as any)?.releasePointerCapture(e.pointerId);
               drag(false);
             }}
             onPointerDown={(e) => {
-              e.target.setPointerCapture(e.pointerId);
+              (e.target as any)?.setPointerCapture(e.pointerId);
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
             }}
           >
-            <mesh geometry={nodes.card.geometry}>
+            <mesh geometry={(nodes.card as any).geometry}>
               <meshPhysicalMaterial
-                map={customMap || materials.base.map}
+                map={customMap || (materials.base as any).map}
                 map-anisotropy={16}
                 clearcoat={isMobile ? 0 : 1}
                 clearcoatRoughness={0.15}
