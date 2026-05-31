@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 import useSound from "use-sound";
 
 export default function Sidebar() {
-  const { user, logOut } = useAuth();
+  const { user, logout } = useAuth();
   const pathname = usePathname();
   
   // Sounds
@@ -82,7 +82,7 @@ export default function Sidebar() {
         {/* Footer Area / Logout */}
         <div className="mt-auto">
           <button
-            onClick={() => { playClick(); logOut(); }}
+            onClick={() => { playClick(); logout(); }}
             onMouseEnter={() => playHover()}
             className="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-primary-pink/80 hover:text-primary-pink hover:bg-primary-pink/10 transition-all border border-transparent hover:border-primary-pink/20"
           >
