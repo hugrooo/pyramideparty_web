@@ -77,7 +77,14 @@ export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], 
   );
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = null }) {
+interface BandProps {
+  maxSpeed?: number;
+  minSpeed?: number;
+  isMobile?: boolean;
+  cardTexture?: string | null;
+}
+
+function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = null }: BandProps) {
   const band = useRef();
   const fixed = useRef();
   const j1 = useRef();
