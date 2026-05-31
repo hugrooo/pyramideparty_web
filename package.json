@@ -9,9 +9,21 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@gltf-transform/core": "^4.3.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@react-three/rapier": "^2.2.0",
+    "firebase": "^12.14.0",
+    "framer-motion": "^12.40.0",
+    "jimp": "^1.6.1",
+    "lucide-react": "^1.17.0",
+    "meshline": "^3.3.1",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sharp": "^0.34.5",
+    "three": "^0.184.0",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
