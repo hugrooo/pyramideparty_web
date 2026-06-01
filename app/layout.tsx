@@ -1,12 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import "./globals.css";
-const nunito = Nunito({
-  variable: "--font-nunito",
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "600", "800", "900"],
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
 });
 
 export const viewport: Viewport = {
@@ -30,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scroll-smooth">
       <body
-        className={`${nunito.variable} font-sans antialiased`}
+        className={`${inter.variable} ${outfit.variable} font-sans antialiased`}
       >
         <AuthProvider>
           <ClientLayoutWrapper>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { ref, onValue, query, orderByChild, limitToLast } from "firebase/database";
 import { dbRT } from "@/lib/firebase";
 import { Beer } from "lucide-react";
@@ -15,6 +16,7 @@ interface SipUser {
 export default function SipLeaderboard() {
   const [users, setUsers] = useState<SipUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Les stats de gorgées sont dans /leaderboard triées par totalSips
@@ -44,12 +46,25 @@ export default function SipLeaderboard() {
     return () => unsubscribe();
   }, []);
 
+  useGSAP(() => {
+    if (!loading && users.length > 0) {
+      gsap.from(".sip-item", {
+        opacity: 0,
+        x: -20,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power2.out",
+        clearProps: "all"
+      });
+    }
+  }, { scope: container, dependencies: [loading, users] });
+
   if (loading) return <div className="text-center p-4 text-text-muted animate-pulse">Chargement des légendes...</div>;
   if (users.length === 0) return null; // Ne rien afficher s'il n'y a pas de données
 
   return (
-    <div className="w-full bg-bg-dark/40 border border-primary-orange/20 rounded-2xl p-6 mt-8 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary-orange/10 rounded-full blur-2xl -mr-10 -mt-10" />
+    <div className="w-full bg-bg-dark/40 border border-primary-orange/20 rounded-2xl p-6 mt-8 relative overflow-hidden" ref={container}>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-primary-orange/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
       
       <div className="flex items-center justify-between mb-6 relative z-10">
         <h3 className="text-xl font-black text-white flex items-center gap-3 drop-shadow-md">
@@ -63,12 +78,9 @@ export default function SipLeaderboard() {
 
       <div className="flex flex-col gap-3 relative z-10">
         {users.map((player, index) => (
-          <motion.div 
+          <div 
             key={player.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/5 hover:border-primary-orange/30 transition-colors"
+            className="sip-item flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/5 hover:border-primary-orange/30 transition-colors"
           >
             <div className="flex items-center gap-3">
               <div className="font-black text-lg text-white/50 w-6 text-center">
@@ -81,7 +93,7 @@ export default function SipLeaderboard() {
             <div className="font-black text-primary-orange flex items-center gap-1 drop-shadow-[0_0_5px_rgba(255,165,0,0.5)]">
               {player.totalSips} <span className="text-sm">🍺</span>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

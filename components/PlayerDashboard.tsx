@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { ref, onValue, set } from "firebase/database";
 import { dbRT } from "@/lib/firebase";
 import { User as FirebaseUser } from "firebase/auth";
@@ -21,6 +22,8 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
   const [claiming, setClaiming] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const container = useRef<HTMLDivElement>(null);
+  const particlesRef = useRef<HTMLDivElement>(null);
   
   // Custom Texture State
   const [activeTexture, setActiveTexture] = useState<string | null>(null);
@@ -46,11 +49,7 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
     const unsubscribeFriends = onValue(friendsRef, async (snapshot) => {
       const friendsData = snapshot.val();
       if (friendsData) {
-        // We only have the UIDs of the friends. We should fetch their names
-        // But for simplicity, we'll just show the number of friends or placeholder names if we don't do a full join
-        // In a real app, you'd fetch each friend's profile.
         const friendIds = Object.keys(friendsData);
-        // For the dashboard, knowing the count is already great, but let's mock the names for the UI
         setFriends(friendIds.map(id => ({ id, name: "Ami " + id.substring(0,4) })));
       } else {
         setFriends([]);
@@ -62,6 +61,44 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
       unsubscribeFriends();
     };
   }, [user.uid]);
+
+  useGSAP(() => {
+    // Entrance animation
+    gsap.from(".dash-element", {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.1,
+      ease: "power3.out",
+      clearProps: "all"
+    });
+
+    // Particles animation
+    if (particlesRef.current) {
+      const particles = particlesRef.current.children;
+      gsap.to(particles, {
+        y: () => `-=${Math.random() * 200 + 100}`,
+        opacity: 0,
+        duration: () => Math.random() * 5 + 5,
+        ease: "linear",
+        repeat: -1,
+        stagger: {
+          each: 0.2,
+          from: "random"
+        }
+      });
+    }
+  }, { scope: container, dependencies: [loading] });
+
+  // Add GSAP animation for inventory toggle
+  useGSAP(() => {
+    if (showInventory) {
+      gsap.fromTo(".inventory-drawer", 
+        { height: 0, opacity: 0 }, 
+        { height: "auto", opacity: 1, duration: 0.4, ease: "power2.out" }
+      );
+    }
+  }, { scope: container, dependencies: [showInventory] });
 
   if (loading) {
     return (
@@ -128,35 +165,23 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
+    <div 
+      ref={container}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       className="glass-panel flex-1 flex flex-col pt-8 pb-8 px-8 relative min-h-[600px] overflow-hidden"
     >
       {/* Floating Particles */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+      <div ref={particlesRef} className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
-          <motion.div
+          <div
             key={i}
             className="absolute w-1 h-1 rounded-full bg-primary-cyan"
-            initial={{
-              x: Math.random() * 1000 - 500,
-              y: Math.random() * 600,
-              opacity: Math.random() * 0.5 + 0.2,
-              scale: Math.random() * 2,
-            }}
-            animate={{
-              y: [null, Math.random() * -200 - 100],
-              opacity: [null, 0],
-            }}
-            transition={{
-              duration: Math.random() * 5 + 5,
-              repeat: Infinity,
-              ease: "linear",
-            }}
             style={{
+              left: `${Math.random() * 100}%`,
+              bottom: `${Math.random() * -20}%`,
+              opacity: Math.random() * 0.5 + 0.2,
+              transform: `scale(${Math.random() * 2})`,
               boxShadow: "0 0 10px 2px rgba(0, 240, 255, 0.6)",
             }}
           />
@@ -164,13 +189,13 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
       </div>
 
       {/* 3D Lanyard Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+      <div className="dash-element absolute inset-0 z-0 pointer-events-none opacity-40">
         <Lanyard position={[0, -5, 25]} gravity={[0, -20, 0]} transparent={true} cardTexture={activeTexture} />
       </div>
 
       <div className="relative z-10 flex flex-col h-full">
         {/* Header Profile */}
-        <div className="flex items-center gap-6 mb-10">
+        <div className="dash-element flex items-center gap-6 mb-10">
           <div className="relative w-24 h-24 rounded-full bg-bg-dark border-2 border-primary-cyan shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center justify-center text-4xl">
             😎
             {/* XP Circular Progress */}
@@ -181,14 +206,14 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
           </div>
           
           <div>
-            <h2 className="text-3xl font-black text-white drop-shadow-md">
+            <h2 className="text-3xl font-black text-white drop-shadow-md text-glow">
               {userData?.pseudo || user.displayName || "Joueur"}
             </h2>
             <div className="flex gap-3 mt-2">
               <span className="px-3 py-1 bg-primary-cyan/20 border border-primary-cyan rounded-full text-primary-cyan font-bold text-sm shadow-[0_0_10px_rgba(0,240,255,0.2)]">
                 Niv. {level}
               </span>
-              <span className="px-3 py-1 bg-primary-purple/20 border border-primary-purple rounded-full text-primary-purple font-bold text-sm shadow-[0_0_10px_rgba(188,19,254,0.2)] flex items-center gap-1">
+              <span className="px-3 py-1 bg-primary-purple/20 border border-primary-purple rounded-full text-primary-purple font-bold text-sm shadow-[0_0_10px_rgba(112,0,255,0.2)] flex items-center gap-1">
                 <Sparkles size={14} />
                 {activeTitle}
               </span>
@@ -200,7 +225,7 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
         </div>
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-2 gap-6 flex-1">
+        <div className="dash-element grid grid-cols-2 gap-6 flex-1">
           {/* Inventory Card */}
           <div 
             onMouseEnter={() => playHover()}
@@ -237,7 +262,7 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
               <h3 className="text-xl font-bold text-white">Amis</h3>
             </div>
             <p className="text-text-secondary mb-4">Rejoignez vos amis connectés ou invitez-les à jouer.</p>
-            <div className="text-3xl font-black text-primary-purple drop-shadow-[0_0_10px_rgba(188,19,254,0.5)]">
+            <div className="text-3xl font-black text-primary-purple drop-shadow-[0_0_10px_rgba(112,0,255,0.5)]">
               {friends.length} <span className="text-sm font-bold text-text-muted">amis</span>
             </div>
           </div>
@@ -245,16 +270,11 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
 
         {/* Inventory Drawer (Shows on click) */}
         {showInventory && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mt-6 p-4 rounded-xl bg-black/40 border border-white/10 overflow-hidden"
-          >
+          <div className="inventory-drawer mt-6 p-4 rounded-xl bg-black/40 border border-white/10 overflow-hidden">
             <h4 className="text-white font-bold mb-3">Glissez-déposez un Dos de carte vers le fond 3D</h4>
             <div className="flex gap-4 overflow-x-auto pb-2">
               {/* Mock items since we don't have real textures, we will just use colors or placeholder URLs */}
               {userData?.ownedBacks ? Object.keys(userData.ownedBacks).map((backId, i) => {
-                // Pour l'exemple, on utilise une couleur aléatoire ou un motif (dans une vraie app, on aurait une URL)
                 const mockUrl = `/logo.png`; // On utilise l'image du logo comme mock de texture si pas de vraie URL
                 return (
                   <div 
@@ -295,16 +315,12 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
                 ))
               )}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Daily Reward Banner */}
         {canClaimReward && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 bg-gradient-to-r from-primary-pink/20 to-primary-purple/20 border border-primary-pink/50 rounded-2xl p-4 flex items-center justify-between shadow-[0_0_15px_rgba(255,0,255,0.2)]"
-          >
+          <div className="dash-element mt-6 bg-gradient-to-r from-primary-pink/20 to-primary-purple/20 border border-primary-pink/50 rounded-2xl p-4 flex items-center justify-between shadow-[0_0_15px_rgba(255,0,255,0.2)]">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-primary-pink/20 flex items-center justify-center text-primary-pink animate-bounce">
                 <Gift size={20} />
@@ -321,11 +337,11 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
             >
               {claiming ? "..." : "Réclamer"}
             </button>
-          </motion.div>
+          </div>
         )}
 
         {/* Action Button */}
-        <div className="mt-8 flex justify-center">
+        <div className="dash-element mt-8 flex justify-center">
           <button 
             onMouseEnter={() => playHover()}
             onClick={() => {
@@ -342,6 +358,6 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
       </div>
       
       <DownloadModal isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} />
-    </motion.div>
+    </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { ref, onValue, query, orderByChild, limitToLast } from "firebase/database";
 import { dbRT } from "@/lib/firebase";
 
@@ -16,6 +17,7 @@ interface LeaderboardUser {
 export default function RealtimeLeaderboard() {
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Dans Firebase RTDB, on orderByChild('xp') et limitToLast(100) pour avoir les meilleurs
@@ -47,21 +49,21 @@ export default function RealtimeLeaderboard() {
     return () => unsubscribe();
   }, []);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
+  useGSAP(() => {
+    if (!loading && users.length > 0) {
+      gsap.from(".leaderboard-item", {
+        opacity: 0,
+        x: -40,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: "back.out(1.5)",
+        clearProps: "all"
+      });
     }
-  };
-
-  const itemVariants: any = {
-    hidden: { opacity: 0, x: -20 },
-    show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-  };
+  }, { scope: container, dependencies: [loading, users] });
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={container}>
       {/* Headers */}
       <div className="grid grid-cols-4 gap-4 px-4 pb-4 border-b border-white/10 text-xs font-bold text-text-secondary uppercase tracking-wider">
         <div className="col-span-1">Rang</div>
@@ -80,21 +82,15 @@ export default function RealtimeLeaderboard() {
           Aucun joueur trouvé.
         </div>
       ) : (
-        <motion.ul 
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="flex flex-col gap-3 mt-4"
-        >
+        <ul className="flex flex-col gap-3 mt-4">
           {users.map((player, index) => {
             const rank = index + 1;
             const isTop3 = rank <= 3;
             return (
-              <motion.li 
+              <li 
                 key={player.id}
-                variants={itemVariants}
-                className={`relative overflow-hidden rounded-xl bg-bg-dark/40 border transition-all ${
-                  isTop3 ? 'border-primary-cyan/30 bg-primary-cyan/5 hover:border-primary-cyan/60' : 'border-white/5 hover:border-white/20'
+                className={`leaderboard-item relative overflow-hidden rounded-xl bg-bg-dark/40 border transition-all duration-300 hover:scale-[1.02] ${
+                  isTop3 ? 'border-primary-cyan/30 bg-primary-cyan/5 hover:border-primary-cyan/60 hover:shadow-[0_0_20px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/20'
                 }`}
               >
                 {isTop3 && (
@@ -105,7 +101,7 @@ export default function RealtimeLeaderboard() {
                     {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : <span className="text-text-muted opacity-50 ml-1">#{rank}</span>}
                   </div>
                   <div className="col-span-1 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary-purple/20 border border-primary-purple flex items-center justify-center font-bold text-white shadow-[0_0_10px_rgba(188,19,254,0.3)]">
+                    <div className="w-8 h-8 rounded-full bg-primary-purple/20 border border-primary-purple flex items-center justify-center font-bold text-white shadow-[0_0_10px_rgba(112,0,255,0.3)]">
                       {player.name.charAt(0).toUpperCase()}
                     </div>
                     <span className="font-bold text-white">{player.name}</span>
@@ -117,10 +113,10 @@ export default function RealtimeLeaderboard() {
                     {player.activeTitle}
                   </div>
                 </div>
-              </motion.li>
+              </li>
             );
           })}
-        </motion.ul>
+        </ul>
       )}
     </div>
   );
