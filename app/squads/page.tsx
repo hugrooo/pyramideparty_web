@@ -1,136 +1,183 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Shield, Plus, Users, Search } from "lucide-react";
-import { ref, onValue, push, set } from "firebase/database";
+import { useEffect, useState, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ref, onValue, query, orderByChild, limitToLast } from "firebase/database";
 import { dbRT } from "@/lib/firebase";
+import { Shield, Trophy, Users, Star } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+
+interface Squad {
+  id: string;
+  name: string;
+  tag: string;
+  xp: number;
+  memberCount: number;
+}
 
 export default function SquadsPage() {
   const { user } = useAuth();
-  const [squadsList, setSquadsList] = useState<any[]>([]);
+  const [squads, setSquads] = useState<Squad[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [search, setSearch] = useState("");
+  const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const squadsRef = ref(dbRT, 'squads');
-    const unsub = onValue(squadsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const list = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-        // Tri par nombre de membres par exemple, ou juste id
-        list.sort((a,b) => (b.membersCount || 0) - (a.membersCount || 0));
-        setSquadsList(list);
+    // Dans Firebase RTDB, on orderByChild('xp') et limitToLast(50) pour avoir les meilleures écoles
+    const squadsRef = query(ref(dbRT, 'squads'), orderByChild('xp'), limitToLast(50));
+
+    const unsubscribe = onValue(squadsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const list: Squad[] = [];
+        Object.keys(data).forEach((key) => {
+          list.push({
+            id: key,
+            name: data[key].name || "École Inconnue",
+            tag: data[key].tag || "UNK",
+            xp: data[key].xp || 0,
+            memberCount: data[key].memberCount || 0,
+          });
+        });
+        
+        // Trier en ordre décroissant d'XP
+        list.sort((a, b) => b.xp - a.xp);
+        setSquads(list);
       } else {
-        setSquadsList([]);
+        setSquads([]);
       }
       setLoading(false);
     });
-    return () => unsub();
+
+    return () => unsubscribe();
   }, []);
 
-  const handleCreateSquad = async () => {
-    if (!user || creating) return;
-    const name = prompt("Nom de votre Squad :");
-    const tag = prompt("Tag (3-4 lettres) :");
-    if (!name || !tag) return;
+  useGSAP(() => {
+    gsap.from(".header-anim", {
+      y: -30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.1,
+      ease: "power3.out"
+    });
 
-    setCreating(true);
-    try {
-      const newSquadRef = push(ref(dbRT, 'squads'));
-      await set(newSquadRef, {
-        name,
-        tag: tag.toUpperCase().substring(0, 4),
-        membersCount: 1,
-        owner: user.uid,
-        createdAt: Date.now()
+    if (!loading && squads.length > 0) {
+      gsap.from(".squad-item", {
+        opacity: 0,
+        x: -40,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "back.out(1.5)",
+        clearProps: "all"
       });
-    } catch (e) {
-      console.error(e);
     }
-    setCreating(false);
-  };
-
-  const filteredSquads = squadsList.filter(s => 
-    s.name?.toLowerCase().includes(search.toLowerCase()) || 
-    s.tag?.toLowerCase().includes(search.toLowerCase())
-  );
+  }, { scope: container, dependencies: [loading, squads] });
 
   return (
-    <div className="flex flex-col min-h-screen p-8 relative">
-      <div className="flex items-center justify-between mb-12">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-primary-pink/10 flex items-center justify-center border border-primary-pink/20">
-            <Shield size={32} className="text-primary-pink" />
+    <div ref={container} className="min-h-screen bg-bg-dark text-white p-8 md:p-12 pb-32 relative overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute top-[10%] right-[-10%] w-[40%] h-[40%] bg-primary-pink/10 rounded-full blur-[120px] -z-10 pointer-events-none" />
+      <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[50%] bg-primary-cyan/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col items-center text-center mb-16 header-anim">
+          <div className="w-20 h-20 bg-primary-pink/20 rounded-3xl flex items-center justify-center text-primary-pink border border-primary-pink/30 shadow-[0_0_30px_rgba(255,0,229,0.2)] mb-6">
+            <Shield size={40} />
           </div>
-          <div>
-            <h1 className="text-4xl font-black text-white">Squads</h1>
-            <p className="text-text-secondary">Rejoignez un clan ou créez le vôtre.</p>
+          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tight text-glow mb-4">
+            Guerre des <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-pink to-primary-purple">Écoles</span>
+          </h1>
+          <p className="text-xl text-text-secondary max-w-2xl font-medium">
+            Rejoins la Squad de ton BDE et cumule des points en jouant pour hisser ton école au sommet du classement national !
+          </p>
+        </div>
+
+        {/* Classement */}
+        <div className="bg-black/40 border border-white/10 rounded-[2rem] p-6 md:p-10 backdrop-blur-md shadow-2xl header-anim min-h-[400px]">
+          
+          <div className="grid grid-cols-12 gap-4 px-6 pb-6 border-b border-white/10 text-sm font-bold text-text-secondary uppercase tracking-wider">
+            <div className="col-span-2 md:col-span-1">Rang</div>
+            <div className="col-span-6 md:col-span-5">Escouade (École)</div>
+            <div className="col-span-4 md:col-span-3 text-right md:text-left flex items-center justify-end md:justify-start gap-2">
+              <Users size={16} /> <span className="hidden md:inline">Membres</span>
+            </div>
+            <div className="hidden md:flex col-span-3 text-right items-center justify-end gap-2 text-primary-pink">
+              <Trophy size={16} /> Total XP
+            </div>
           </div>
-        </div>
-        
-        <button 
-          onClick={handleCreateSquad}
-          disabled={creating}
-          className="flex items-center gap-2 bg-primary-pink text-white px-6 py-3 rounded-xl font-bold shadow-[0_0_15px_rgba(255,0,255,0.3)] hover:scale-105 transition-transform"
-        >
-          <Plus size={20} />
-          {creating ? "Création..." : "Créer un Squad"}
-        </button>
-      </div>
 
-      <div className="flex gap-4 mb-8">
-        <div className="flex-1 relative">
-          <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
-          <input 
-            type="text" 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher un squad par nom ou tag..." 
-            className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-primary-pink/50 transition-colors"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="col-span-3 text-center text-text-muted py-12 animate-pulse">Recherche des clans...</div>
-        ) : filteredSquads.length === 0 ? (
-          <div className="col-span-3 text-center text-text-muted py-12">Aucun Squad trouvé. Soyez le premier à en créer un !</div>
-        ) : (
-          filteredSquads.map((squad, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-bg-card border border-white/10 rounded-2xl p-6 relative overflow-hidden group hover:border-primary-pink/30 transition-colors"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-pink/5 rounded-full blur-[40px] -mr-10 -mt-10 group-hover:bg-primary-pink/10 transition-colors" />
-            
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs font-bold text-text-muted">
-                [{squad.tag || "???"}]
-              </div>
-              <div className="text-primary-pink font-black flex items-center gap-1">
-                #{i + 1}
-              </div>
+          {loading ? (
+            <div className="py-20 flex flex-col items-center justify-center text-text-muted animate-pulse">
+              <Shield size={48} className="mb-4 opacity-50" />
+              <p className="text-xl font-bold uppercase tracking-widest">Recherche des Squads...</p>
             </div>
-
-            <h3 className="text-2xl font-black text-white mb-2 relative z-10">{squad.name}</h3>
-            
-            <div className="flex items-center gap-2 text-text-secondary mb-6 relative z-10">
-              <Users size={16} />
-              <span>{squad.membersCount || 1} membres</span>
+          ) : squads.length === 0 ? (
+            <div className="py-20 flex flex-col items-center justify-center text-text-muted">
+              <Star size={48} className="mb-4 opacity-20" />
+              <p className="text-lg font-bold">Aucune école n'a encore rejoint la bataille.</p>
+              <a href="/bde" className="mt-4 text-primary-cyan font-bold hover:underline">Devenir le premier BDE partenaire</a>
             </div>
+          ) : (
+            <ul className="flex flex-col gap-4 mt-6">
+              {squads.map((squad, index) => {
+                const rank = index + 1;
+                const isTop1 = rank === 1;
+                const isTop3 = rank <= 3;
+                
+                return (
+                  <li 
+                    key={squad.id}
+                    className={`squad-item relative overflow-hidden rounded-2xl bg-bg-dark/50 border transition-all duration-300 hover:scale-[1.01] ${
+                      isTop1 ? 'border-primary-pink/40 bg-primary-pink/10 shadow-[0_0_20px_rgba(255,0,229,0.15)]' 
+                      : isTop3 ? 'border-primary-purple/30 bg-primary-purple/5' 
+                      : 'border-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    {isTop1 && (
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-pink shadow-[0_0_15px_#FF00E5]" />
+                    )}
+                    <div className="grid grid-cols-12 gap-4 items-center px-6 py-5">
+                      {/* Rang */}
+                      <div className="col-span-2 md:col-span-1 font-black text-2xl text-white">
+                        {rank === 1 ? '👑' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : <span className="text-text-muted opacity-50">#{rank}</span>}
+                      </div>
+                      
+                      {/* Nom / Tag */}
+                      <div className="col-span-6 md:col-span-5 flex items-center gap-4">
+                        <div className={`hidden sm:flex w-12 h-12 rounded-xl border items-center justify-center font-black text-sm tracking-wider ${
+                          isTop1 ? 'bg-primary-pink/20 border-primary-pink/50 text-primary-pink' : 'bg-white/5 border-white/10 text-text-muted'
+                        }`}>
+                          {squad.tag}
+                        </div>
+                        <div>
+                          <div className={`font-black text-lg ${isTop1 ? 'text-white text-glow' : 'text-white'}`}>
+                            {squad.name}
+                          </div>
+                          <div className="text-sm font-bold text-text-muted sm:hidden">
+                            [{squad.tag}]
+                          </div>
+                        </div>
+                      </div>
 
-            <button className="w-full py-2 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-colors relative z-10">
-              Rejoindre
-            </button>
-          </motion.div>
-        )))}
+                      {/* Membres */}
+                      <div className="col-span-4 md:col-span-3 text-right md:text-left font-bold text-text-secondary">
+                        {squad.memberCount} <span className="text-sm font-normal text-text-muted">étudiants</span>
+                      </div>
+
+                      {/* XP (Desktop) */}
+                      <div className="hidden md:flex col-span-3 text-right flex-col items-end">
+                        <div className="font-black text-xl text-primary-pink drop-shadow-[0_0_8px_rgba(255,0,229,0.3)]">
+                          {squad.xp.toLocaleString()} XP
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

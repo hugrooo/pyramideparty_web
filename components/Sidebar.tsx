@@ -11,14 +11,19 @@ import {
   BookOpen, 
   Shield, 
   Newspaper,
-  LogOut
+  LogOut,
+  Gift,
+  GraduationCap
 } from "lucide-react";
 import { motion } from "framer-motion";
 import useSound from "use-sound";
+import PromoCodeModal from "./PromoCodeModal";
+import { useState } from "react";
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const [isPromoOpen, setIsPromoOpen] = useState(false);
   
   // Sounds
   const [playHover] = useSound('/sounds/whoosh.mp3', { volume: 0.15 });
@@ -31,13 +36,16 @@ export default function Sidebar() {
     { name: "Boutique", href: "/shop", icon: Store },
     { name: "Classement", href: "/leaderboards", icon: Trophy },
     { name: "Mon Profil", href: `/user/${user.uid}`, icon: UserCircle },
-    { name: "Règles du Jeu", href: "/rules", icon: BookOpen },
     { name: "Squads", href: "/squads", icon: Shield },
+    { name: "Partenariat BDE", href: "/bde", icon: GraduationCap },
+    { name: "Règles du Jeu", href: "/rules", icon: BookOpen },
     { name: "Actualités", href: "/news", icon: Newspaper },
   ];
 
   return (
     <>
+      <PromoCodeModal isOpen={isPromoOpen} onClose={() => setIsPromoOpen(false)} />
+      
       {/* --- DESKTOP SIDEBAR --- */}
       <motion.aside 
         initial={{ x: -100, opacity: 0 }}
@@ -80,7 +88,16 @@ export default function Sidebar() {
       </nav>
 
         {/* Footer Area / Logout */}
-        <div className="mt-auto">
+        <div className="mt-auto flex flex-col gap-2">
+          <button
+            onClick={() => { playClick(); setIsPromoOpen(true); }}
+            onMouseEnter={() => playHover()}
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary-orange/80 to-primary-pink/80 hover:from-primary-orange hover:to-primary-pink transition-all shadow-[0_0_15px_rgba(255,184,0,0.3)] hover:scale-[1.02]"
+          >
+            <Gift size={20} className="animate-pulse" />
+            Entrer un Code
+          </button>
+          
           <button
             onClick={() => { playClick(); logout(); }}
             onMouseEnter={() => playHover()}

@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { ref, onValue } from "firebase/database";
 import { dbRT } from "@/lib/firebase";
-import { Trophy, Shield, Sparkles, AlertTriangle } from "lucide-react";
+import { Trophy, Shield, Sparkles, AlertTriangle, Edit3 } from "lucide-react";
 import Lanyard from "@/components/Lanyard";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import EditProfileModal from "@/components/EditProfileModal";
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -15,6 +16,7 @@ export default function UserProfilePage() {
 
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -58,8 +60,19 @@ export default function UserProfilePage() {
 
       <div className="relative z-10 flex flex-col items-center p-8 pt-20">
         {/* Avatar */}
-        <div className="w-32 h-32 rounded-full bg-bg-dark border-4 border-primary-cyan flex items-center justify-center text-5xl mb-6 shadow-[0_0_30px_rgba(0,240,255,0.3)]">
-          😎
+        <div className="relative">
+          <div className="w-32 h-32 rounded-full bg-bg-dark border-4 border-primary-cyan flex items-center justify-center text-5xl mb-6 shadow-[0_0_30px_rgba(0,240,255,0.3)]">
+            😎
+          </div>
+          {isCurrentUser && (
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="absolute bottom-6 right-0 w-10 h-10 bg-primary-purple rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform border-2 border-bg-dark"
+              title="Modifier le profil"
+            >
+              <Edit3 size={18} />
+            </button>
+          )}
         </div>
 
         {/* Info */}
@@ -79,7 +92,7 @@ export default function UserProfilePage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
-          <div className="bg-black/50 backdrop-blur-md border border-white/10 p-6 rounded-3xl flex items-center gap-6">
+          <div className="bg-black/50 backdrop-blur-md border border-white/10 p-6 rounded-3xl flex items-center gap-6 hover:border-primary-cyan/30 transition-colors">
             <div className="w-16 h-16 rounded-2xl bg-yellow-400/20 flex items-center justify-center text-yellow-400">
               <Trophy size={32} />
             </div>
@@ -89,7 +102,7 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          <div className="bg-black/50 backdrop-blur-md border border-white/10 p-6 rounded-3xl flex items-center gap-6">
+          <div className="bg-black/50 backdrop-blur-md border border-white/10 p-6 rounded-3xl flex items-center gap-6 hover:border-primary-orange/30 transition-colors">
             <div className="w-16 h-16 rounded-2xl bg-primary-orange/20 flex items-center justify-center text-primary-orange">
               <Shield size={32} />
             </div>
@@ -100,6 +113,16 @@ export default function UserProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {isCurrentUser && (
+        <EditProfileModal 
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          uid={user.uid}
+          currentPseudo={userData?.pseudo || ""}
+        />
+      )}
     </div>
   );
 }
