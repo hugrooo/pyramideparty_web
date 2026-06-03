@@ -289,28 +289,18 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
                   </div>
                 );
               }) : (
-                // Si l'utilisateur n'a pas de dos de cartes, on affiche 2 mocks par défaut pour l'exemple
-                ["mock_1", "mock_2"].map((id, i) => (
+                // Si l'utilisateur n'a pas de dos de cartes, on affiche un mock par défaut avec le logo
+                ["logo"].map((id) => (
                   <div 
                     key={id}
                     draggable
                     onDragStart={(e) => {
-                      // Fake pattern base64 image just to see a texture change
-                      const canvas = document.createElement('canvas');
-                      canvas.width = 512; canvas.height = 512;
-                      const ctx = canvas.getContext('2d');
-                      if(ctx) {
-                        ctx.fillStyle = i === 0 ? '#1a1a2e' : '#4a0e4e';
-                        ctx.fillRect(0,0,512,512);
-                        ctx.fillStyle = i === 0 ? '#00F0FF' : '#FF00FF';
-                        ctx.font = '80px Arial';
-                        ctx.fillText('CUSTOM', 80, 256);
-                      }
-                      e.dataTransfer.setData("textureUrl", canvas.toDataURL());
+                      e.dataTransfer.setData("textureUrl", "/logo.png");
                     }}
-                    className="w-20 h-28 rounded-lg bg-bg-card border-2 border-dashed border-white/20 flex-shrink-0 cursor-grab active:cursor-grabbing hover:scale-105 transition-transform flex flex-col items-center justify-center text-center p-2"
+                    className="w-20 h-28 rounded-lg bg-bg-card border-2 border-dashed border-white/20 flex-shrink-0 cursor-grab active:cursor-grabbing hover:scale-105 transition-transform flex flex-col items-center justify-center text-center p-1 relative overflow-hidden"
                   >
-                    <span className="text-[10px] text-text-muted">Glissez-moi !</span>
+                    <img src="/logo.png" alt="Logo" className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                    <span className="text-[10px] text-white font-bold z-10 bg-black/50 px-1 rounded">Glissez-moi !</span>
                   </div>
                 ))
               )}
