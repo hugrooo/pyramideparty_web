@@ -195,7 +195,7 @@ export default function LandingPage() {
         </div>
 
         {/* Hero 3D Component */}
-        <div className="hero-3d w-full lg:w-1/2 h-[500px] md:h-[750px] relative mt-8 lg:mt-0 cursor-grab active:cursor-grabbing">
+        <div className="hero-3d hidden lg:block w-full lg:w-1/2 h-[500px] md:h-[750px] relative mt-8 lg:mt-0 cursor-grab active:cursor-grabbing">
           {/* Lanyard renders in a Canvas and needs absolute positioning inside a wrapper to fit */}
           <div className="absolute inset-0 z-20 scale-110 md:scale-125 transform origin-center">
              <Lanyard cardTexture="/original_texture.png" />
