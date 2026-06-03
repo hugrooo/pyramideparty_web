@@ -152,9 +152,6 @@ export default function LandingPage() {
 
         {/* Hero Text */}
         <div className="z-10 flex-1 text-center lg:text-left pt-12 lg:pt-0">
-          <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm hero-title">
-            <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-primary-cyan">V 2.0 est maintenant disponible</span>
-          </div>
           
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-[1.1]">
             <div className="hero-title">LE JEU DE</div>
@@ -198,10 +195,10 @@ export default function LandingPage() {
         </div>
 
         {/* Hero 3D Component */}
-        <div className="hero-3d w-full lg:w-1/2 h-[400px] md:h-[600px] relative mt-8 lg:mt-0 cursor-grab active:cursor-grabbing">
+        <div className="hero-3d w-full lg:w-1/2 h-[500px] md:h-[750px] relative mt-8 lg:mt-0 cursor-grab active:cursor-grabbing">
           {/* Lanyard renders in a Canvas and needs absolute positioning inside a wrapper to fit */}
-          <div className="absolute inset-0 z-20">
-             <Lanyard cardTexture="/logo.png" />
+          <div className="absolute inset-0 z-20 scale-110 md:scale-125 transform origin-center">
+             <Lanyard cardTexture="/original_texture.png" />
           </div>
           <div className="absolute inset-x-0 bottom-0 flex justify-center z-30 pointer-events-none pb-4 md:hidden">
             <span className="text-[10px] text-white/50 uppercase tracking-widest bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">Touchez la carte</span>
@@ -294,13 +291,17 @@ export default function LandingPage() {
             <p className="text-lg md:text-xl text-text-muted mb-10 max-w-2xl mx-auto">Téléchargez l'application mobile ou jouez directement depuis votre navigateur. C'est gratuit.</p>
             
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <button className="w-full sm:w-auto px-8 py-4 rounded-xl font-bold bg-white text-bg-dark flex items-center justify-center gap-3 hover:scale-105 transition-transform">
+              <button className="w-full sm:w-auto px-6 py-4 rounded-xl font-bold bg-white text-bg-dark flex items-center justify-center gap-3 hover:scale-105 transition-transform text-sm md:text-base">
                 <Download size={20} />
                 App Store (Bientôt)
               </button>
-              <Link href="/play" className="w-full sm:w-auto px-8 py-4 rounded-xl font-bold border border-white/20 text-white flex items-center justify-center gap-3 hover:bg-white/5 transition-all">
+              <button className="w-full sm:w-auto px-6 py-4 rounded-xl font-bold bg-[#3DDC84] text-bg-dark flex items-center justify-center gap-3 hover:scale-105 transition-transform text-sm md:text-base">
+                <Download size={20} />
+                Play Store (Bientôt)
+              </button>
+              <Link href="/play" className="w-full sm:w-auto px-6 py-4 rounded-xl font-bold border border-white/20 text-white flex items-center justify-center gap-3 hover:bg-white/5 transition-all text-sm md:text-base">
                 <Smartphone size={20} />
-                Version Web
+                Rejoindre la Pyramide
               </Link>
             </div>
             
@@ -315,8 +316,16 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-white/10 text-center text-text-muted bg-bg-dark/80 backdrop-blur-md">
-        <div className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-cyan to-primary-purple mb-6">
+        <div className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-cyan to-primary-purple mb-6 flex items-center justify-center gap-2">
           PYRAMIDE PARTY
+        </div>
+        <div className="flex items-center justify-center gap-6 mb-6">
+          <a href="https://www.tiktok.com/@pyramideparty" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-white transition-colors font-bold">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"/>
+            </svg>
+            TikTok
+          </a>
         </div>
         <p className="text-sm">© {new Date().getFullYear()} Pyramide Party. Tous droits réservés.</p>
         <p className="text-xs mt-2 opacity-50 px-4">L'abus d'alcool est dangereux pour la santé, à consommer avec modération.</p>
