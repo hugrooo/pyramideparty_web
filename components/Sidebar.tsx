@@ -32,7 +32,7 @@ export default function Sidebar() {
   if (!user) return null; // Ne pas afficher la sidebar si non connecté
 
   const navItems = [
-    { name: "Dashboard", href: "/", icon: Home },
+    { name: "Dashboard", href: "/play", icon: Home },
     { name: "Boutique", href: "/shop", icon: Store },
     { name: "Classement", href: "/leaderboards", icon: Trophy },
     { name: "Mon Profil", href: `/user/${user.uid}`, icon: UserCircle },
