@@ -18,9 +18,19 @@ interface LanyardProps {
   fov?: number;
   transparent?: boolean;
   cardTexture?: string | null;
+  textureScale?: [number, number];
+  textureOffset?: [number, number];
 }
 
-export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true, cardTexture = null }: LanyardProps) {
+export default function Lanyard({ 
+  position = [0, 0, 30], 
+  gravity = [0, -40, 0], 
+  fov = 20, 
+  transparent = true, 
+  cardTexture = null,
+  textureScale = [1, 1],
+  textureOffset = [0, 0]
+}: LanyardProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -40,7 +50,7 @@ export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], 
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band isMobile={isMobile} cardTexture={cardTexture} />
+          <Band isMobile={isMobile} cardTexture={cardTexture} textureScale={textureScale} textureOffset={textureOffset} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -82,9 +92,11 @@ interface BandProps {
   minSpeed?: number;
   isMobile?: boolean;
   cardTexture?: string | null;
+  textureScale?: [number, number];
+  textureOffset?: [number, number];
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = null }: BandProps) {
+function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = null, textureScale = [1, 1], textureOffset = [0, 0] }: BandProps) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
   const j1 = useRef<any>(null);
@@ -110,12 +122,14 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture = nul
       new THREE.TextureLoader().load(cardTexture, (t) => {
         t.flipY = false;
         t.colorSpace = THREE.SRGBColorSpace;
+        t.repeat.set(textureScale[0], textureScale[1]);
+        t.offset.set(textureOffset[0], textureOffset[1]);
         setCustomMap(t);
       });
     } else {
       setCustomMap(null);
     }
-  }, [cardTexture]);
+  }, [cardTexture, textureScale, textureOffset]);
 
   const [curve] = useState(
     () =>

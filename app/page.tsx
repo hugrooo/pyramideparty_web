@@ -198,7 +198,11 @@ export default function LandingPage() {
         <div className="hero-3d hidden lg:block w-full lg:w-1/2 h-[500px] md:h-[750px] relative mt-8 lg:mt-0 cursor-grab active:cursor-grabbing">
           {/* Lanyard renders in a Canvas and needs absolute positioning inside a wrapper to fit */}
           <div className="absolute inset-0 z-20 scale-110 md:scale-125 transform origin-center">
-             <Lanyard cardTexture="/original_texture.png" />
+             <Lanyard 
+                cardTexture="/logo.png" 
+                textureScale={[1, 1.2]} 
+                textureOffset={[0, -0.1]} 
+             />
           </div>
           <div className="absolute inset-x-0 bottom-0 flex justify-center z-30 pointer-events-none pb-4 md:hidden">
             <span className="text-[10px] text-white/50 uppercase tracking-widest bg-black/50 px-3 py-1 rounded-full backdrop-blur-md">Touchez la carte</span>
