@@ -332,18 +332,18 @@ export default function PlayerDashboard({ user }: PlayerDashboardProps) {
 
         {/* Action Button */}
         <div className="dash-element mt-8 flex justify-center">
-          <button 
+          <a 
             onMouseEnter={() => playHover()}
             onClick={() => {
               playClick();
-              setIsDownloadModalOpen(true);
             }}
-            className="px-12 py-4 rounded-full bg-gradient-to-r from-primary-cyan/30 to-primary-purple/30 text-white font-black border border-white/20 hover:border-white/50 shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all text-lg flex items-center gap-3 hover:scale-105 group relative overflow-hidden"
+            href="/game/"
+            className="px-12 py-4 rounded-full bg-gradient-to-r from-primary-cyan/30 to-primary-purple/30 text-white font-black border border-white/20 hover:border-white/50 shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all text-lg flex items-center gap-3 hover:scale-105 group relative overflow-hidden inline-block text-center"
           >
             <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform" />
             <Trophy size={24} className="group-hover:rotate-12 transition-transform" />
             <span className="relative z-10">Lancer une Partie</span>
-          </button>
+          </a>
         </div>
       </div>
       

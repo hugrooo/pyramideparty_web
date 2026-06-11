@@ -128,7 +128,7 @@ export default function LandingPage() {
         <div className="flex gap-4">
           {user ? (
             <a 
-              href="/play/" 
+              href="/game/" 
               className="px-6 py-2 md:py-2.5 rounded-full font-bold bg-white text-bg-dark hover:scale-105 transition-transform text-sm md:text-base"
             >
               Jouer
@@ -167,7 +167,7 @@ export default function LandingPage() {
           <div className="hero-cta flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 md:gap-6">
             {user ? (
               <a 
-                href="/play/"
+                href="/game/"
                 className="group relative w-full sm:w-auto px-8 py-4 bg-white text-bg-dark rounded-full font-black text-base md:text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] text-center"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -303,7 +303,7 @@ export default function LandingPage() {
                 <Download size={20} />
                 Play Store (Bientôt)
               </button>
-              <a href="/play/" className="w-full sm:w-auto px-6 py-4 rounded-xl font-bold border border-white/20 text-white flex items-center justify-center gap-3 hover:bg-white/5 transition-all text-sm md:text-base">
+              <a href="/game/" className="w-full sm:w-auto px-6 py-4 rounded-xl font-bold border border-white/20 text-white flex items-center justify-center gap-3 hover:bg-white/5 transition-all text-sm md:text-base">
                 <Smartphone size={20} />
                 Rejoindre la Pyramide
               </a>
