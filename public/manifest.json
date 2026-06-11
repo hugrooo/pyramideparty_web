@@ -1,0 +1,16 @@
+{
+  "name": "Pyramide Party",
+  "short_name": "Pyramide Party",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050814",
+  "theme_color": "#050814",
+  "description": "Le jeu de cartes du chaos",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

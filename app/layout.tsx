@@ -21,9 +21,15 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Pyramide Party - Le jeu de cartes du chaos",
   description: "Jouez à Pyramide Party en local ou en ligne avec vos amis ! Le jeu de bluff, de gages et de chaos.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Pyramide Party",
   },
 };
 
