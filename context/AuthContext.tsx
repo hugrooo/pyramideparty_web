@@ -6,6 +6,7 @@ import {
   onAuthStateChanged, 
   signOut,
   GoogleAuthProvider,
+  OAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -14,6 +15,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
+  loginWithApple: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   loginWithGoogle: async () => {},
+  loginWithApple: async () => {},
   logout: async () => {},
 });
 
@@ -46,6 +49,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const loginWithApple = async () => {
+    const provider = new OAuthProvider('apple.com');
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Erreur de connexion Apple:", error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -55,7 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginWithApple, logout }}>
       {children}
     </AuthContext.Provider>
   );
